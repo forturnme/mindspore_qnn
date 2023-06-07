@@ -50,7 +50,7 @@ def vowel_to_csv(path):
     # normalize the data
     data = (data-0.1307) / 0.3081
     # select first n classes
-    for n_classes in range(2,11):
+    for n_classes in range(2,12):
         print('now selecting first '+str(n_classes)+' classes.')
         idx = labels<n_classes
         data_n = data[idx, :]
