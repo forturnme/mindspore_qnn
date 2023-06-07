@@ -8,6 +8,9 @@ checkpoint*
 data/
 run_tests_for_*.sh
 *$py.class
+nohup.out
+nohup*
+logs/*/
 
 # C extensions
 *.so
