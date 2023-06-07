@@ -35,7 +35,7 @@ print('chosen layers:', args.layers)
 print('chosen qubits:', args.qubits)
 print('chosen reuploads:', args.reuploads)
 print('chosen dataset:', args.dataset)
-print('chosen style:', args.u3cu3)
+print('chosen style:', args.style)
 
 
 n_dim = 10
@@ -123,15 +123,17 @@ def datapipe(path, batch_size):
     #     lambda img: img.flatten()
     # ]
     label_transform = transforms.TypeCast(mindspore.int32)
+    image_transform = transforms.TypeCast(mindspore.float32)
 
     # dataset = MnistDataset(path, num_samples=3000)
     data = {'image':np.loadtxt(path[1], delimiter=','),
             'label':np.loadtxt(path[0], delimiter=',')}
-    dataset = NumpySlicesDataset(data, num_samples=args.classes*300)
+    dataset = NumpySlicesDataset(data)
     # for i in range(10):
     #     print(dataset[i])
     # sys.exit(0)
     dataset = dataset.map(label_transform, 'label')
+    dataset = dataset.map(image_transform, 'image')
     dataset = dataset.batch(batch_size)
     return dataset
 
@@ -158,7 +160,7 @@ class Network(nn.Cell):
         super().__init__()
         self.quantumnet = quantumnet
         self.classes = classes
-        self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
+        self.linear = nn.Dense(args.qubits, classes, has_bias=True)
         # self.reshape = ops.Reshape()
         # self.activation = nn.Sigmoid()
         self.activation = nn.LeakyReLU()
