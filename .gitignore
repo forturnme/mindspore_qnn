@@ -6,6 +6,7 @@ file_stash
 checkpoint*
 *.py[cod]
 data/
+run_tests_for_*.sh
 *$py.class
 
 # C extensions
