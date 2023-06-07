@@ -28,7 +28,7 @@ print('chosen layers:', args.layers)
 print('chosen qubits:', args.qubits)
 print('chosen reuploads:', args.reuploads)
 print('chosen dataset:', args.dataset)
-print('chosen style:', args.u3cu3)
+print('chosen style:', args.style)
 
 
 n_dim = 10
@@ -82,15 +82,17 @@ def datapipe(path, batch_size):
     #     lambda img: img.flatten()
     # ]
     label_transform = transforms.TypeCast(mindspore.int32)
+    image_transform = transforms.TypeCast(mindspore.float32)
 
     # dataset = MnistDataset(path, num_samples=3000)
     data = {'image':np.loadtxt(path[1], delimiter=','),
             'label':np.loadtxt(path[0], delimiter=',')}
-    dataset = NumpySlicesDataset(data, num_samples=args.classes*300)
+    dataset = NumpySlicesDataset(data)
     # for i in range(10):
     #     print(dataset[i])
     # sys.exit(0)
     dataset = dataset.map(label_transform, 'label')
+    dataset = dataset.map(image_transform, 'image')
     dataset = dataset.batch(batch_size)
     return dataset
 
@@ -116,9 +118,9 @@ class Network(nn.Cell):
     def __init__(self, classes=10, n_dim=n_dim):
         super().__init__()
         self.classes = classes
-        self.quantumnet = nn.Dense(n_dim, args.n_qubits, has_bias=True)
+        self.quantumnet = nn.Dense(n_dim, classes, has_bias=True)
         self.activation1 = nn.LeakyReLU()
-        # self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
+        # self.linear = nn.Dense(n_qubits, classes, has_bias=True)
         # self.activation2 = nn.LeakyReLU()
 
     def construct(self, x):
