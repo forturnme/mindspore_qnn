@@ -98,9 +98,9 @@ def datapipe(path, batch_size):
     return dataset
 
 train_dataset = datapipe([f'{datadir}/{args.dataset}_{args.classes}_train_labels.csv',
-                            f'{datadir}/{args.dataset}_{args.classes}_train_images.csv'], batch_size)
+                            f'{datadir}/{args.dataset}_{args.classes}_train_data.csv'], batch_size)
 test_dataset = datapipe([f'{datadir}/{args.dataset}_{args.classes}_test_labels.csv',
-                            f'{datadir}/{args.dataset}_{args.classes}_test_images.csv'], batch_size)
+                            f'{datadir}/{args.dataset}_{args.classes}_test_data.csv'], batch_size)
 
 # train the model
 from mindspore.nn import CrossEntropyLoss                         # 导入SoftmaxCrossEntropyWithLogits模块，用于定义损失函数
