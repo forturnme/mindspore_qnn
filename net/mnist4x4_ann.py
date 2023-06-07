@@ -29,7 +29,7 @@ print('chosen layers:', args.layers)
 print('chosen qubits:', args.qubits)
 print('chosen reuploads:', args.reuploads)
 print('chosen dataset:', args.dataset)
-print('chosen style:', args.u3cu3)
+print('chosen style:', args.style)
 
 
 n_dim = 4*4
@@ -85,6 +85,7 @@ def datapipe(path, batch_size):
     #     lambda img: img.flatten()
     # ]
     label_transform = transforms.TypeCast(mindspore.int32)
+    image_transform = transforms.TypeCast(mindspore.float32)
 
     # dataset = MnistDataset(path, num_samples=3000)
     data = {'image':np.loadtxt(path[1], delimiter=','),
@@ -94,13 +95,14 @@ def datapipe(path, batch_size):
     #     print(dataset[i])
     # sys.exit(0)
     dataset = dataset.map(label_transform, 'label')
+    dataset = dataset.map(image_transform, 'image')
     dataset = dataset.batch(batch_size)
     return dataset
 
 train_dataset = datapipe([f'{datadir}/{args.dataset}_{args.classes}_train_labels.csv',
-                            f'{datadir}/{args.dataset}_{args.classes}_train_images.csv'], batch_size)
+                            f'{datadir}/{args.dataset}_{args.classes}_train_data.csv'], batch_size)
 test_dataset = datapipe([f'{datadir}/{args.dataset}_{args.classes}_test_labels.csv',
-                            f'{datadir}/{args.dataset}_{args.classes}_test_images.csv'], batch_size)
+                            f'{datadir}/{args.dataset}_{args.classes}_test_data.csv'], batch_size)
 
 # train the model
 from mindspore.nn import CrossEntropyLoss                         # 导入SoftmaxCrossEntropyWithLogits模块，用于定义损失函数
@@ -119,9 +121,9 @@ class Network(nn.Cell):
     def __init__(self, classes=10, n_dim=n_dim):
         super().__init__()
         self.classes = classes
-        self.quantumnet = nn.Dense(n_dim, args.n_qubits, has_bias=True)
+        self.quantumnet = nn.Dense(n_dim, n_qubits, has_bias=True)
         self.activation1 = nn.LeakyReLU()
-        self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
+        self.linear = nn.Dense(n_qubits, classes, has_bias=True)
         self.activation2 = nn.LeakyReLU()
 
     def construct(self, x):
