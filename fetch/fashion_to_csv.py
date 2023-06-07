@@ -66,11 +66,12 @@ def fashion_to_4x4(img_path, csv_path, kind='train', classes=10):
     '''
     images, labels = load_fashion(img_path, kind)
     data = np.concatenate((labels.reshape((-1,1)), images), axis=1)
+    idx = data[:,0]<classes
     if kind == 't10k':
         kind = 'test'
-    np.savetxt(csv_path+'fashion_'+kind+'.csv', data, delimiter=',', fmt='%d')
     # convert to 4x4 image vectors
     data = np.concatenate((labels.reshape((-1,1)), np.apply_along_axis(mnist_to_4x4, 1, images)), axis=1)
+    data = data[idx, :]
     np.savetxt(csv_path+'fashion4x4_'+str(classes)+'_'+kind+'_labels.csv', data[:,0], delimiter=',', fmt='%f')
     np.savetxt(csv_path+'fashion4x4_'+str(classes)+'_'+kind+'_images.csv', data[:,1:], delimiter=',', fmt='%f')
 
