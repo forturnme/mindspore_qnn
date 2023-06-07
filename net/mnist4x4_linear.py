@@ -7,7 +7,7 @@ import numpy as np                                        # 导入numpy库并简
 # os.environ["OMP_NUM_THREADS"] = '8'
 
 # pylint: disable=W0104
-from download import download
+# from download import download
 
 # url = "https://mindspore-website.obs.cn-north-4.myhuaweicloud.com/" \
 #       "notebook/datasets/MNIST_Data.zip"
@@ -22,7 +22,7 @@ parser.add_argument("--qubits", type=int)
 parser.add_argument("--dataset", type=str, default='mnist4x4')
 parser.add_argument("--style", type=str, default='u3cu3')
 args = parser.parse_args()
-print('MLP with n_qubits hidden neurons.')
+print('Pure Linear classifier.')
 print('chosen classes:', args.classes)
 print('chosen layers:', args.layers)
 print('chosen qubits:', args.qubits)
@@ -44,16 +44,16 @@ if args.dataset == 'mnist4x4':
 elif args.dataset == 'fashion4x4':
     datadir = 'fashionMNIST_csv'
 
-if args.style == 'u3cu3':
-    qnn_module = qnn_u3_cu3
-elif args.style == 'cnot_zxz':
-    qnn_module = qnn_cnot_zxz
-elif args.style == 'rxyz':
-    qnn_module = qnn_rxyz_swap
-elif args.style == 'zz_ry':
-    qnn_module = qnn_zz_ry
-elif args.style == 'zx_xx':
-    qnn_module = qnn_zx_xx
+# if args.style == 'u3cu3':
+#     qnn_module = qnn_u3_cu3
+# elif args.style == 'cnot_zxz':
+#     qnn_module = qnn_cnot_zxz
+# elif args.style == 'rxyz':
+#     qnn_module = qnn_rxyz_swap
+# elif args.style == 'zz_ry':
+#     qnn_module = qnn_zz_ry
+# elif args.style == 'zx_xx':
+#     qnn_module = qnn_zx_xx
 
 
 
@@ -120,12 +120,12 @@ class Network(nn.Cell):
         self.classes = classes
         self.quantumnet = nn.Dense(n_dim, args.n_qubits, has_bias=True)
         self.activation1 = nn.LeakyReLU()
-        self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
-        self.activation2 = nn.LeakyReLU()
+        # self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
+        # self.activation2 = nn.LeakyReLU()
 
     def construct(self, x):
         x = self.activation1(self.quantumnet(x))
-        x = self.activation2(self.linear(x))
+        # x = self.activation2(self.linear(x))
         return x
 
 model = Network(classes=args.classes)

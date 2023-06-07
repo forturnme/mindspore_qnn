@@ -5,6 +5,7 @@ __pycache__/
 file_stash
 checkpoint*
 *.py[cod]
+data/
 *$py.class
 
 # C extensions

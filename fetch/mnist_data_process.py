@@ -1,5 +1,5 @@
 import numpy as np
-folder = 'MNIST_csv/'
+folder = 'data/mnist_csv/'
 
 mnist_train_csv = np.loadtxt(folder+'mnist_train.csv', delimiter=',')
 mnist_test_csv = np.loadtxt(folder+'mnist_test.csv', delimiter=',')

@@ -7,7 +7,14 @@ import numpy as np                                        # 导入numpy库并简
 # os.environ["OMP_NUM_THREADS"] = '8'
 
 # pylint: disable=W0104
-from download import download
+from mindquantum.core.circuit import Circuit         # 导入Circuit模块，用于搭建量子线路
+from mindquantum.core.circuit import UN              # 导入UN模块
+from mindquantum.core.gates import H, X, RZ          # 导入量子门H, X, RZ
+
+from qnn_circuits import xyz_encoder, qnn_u3_cu3, hams_for_classification, qnn_cnot_zxz, qnn_rxyz_swap, qnn_zz_ry, qnn_zx_xx
+# from qnn_circuits_id import qnn_id_xyz_u3cu3
+
+# from download import download
 
 # url = "https://mindspore-website.obs.cn-north-4.myhuaweicloud.com/" \
 #       "notebook/datasets/MNIST_Data.zip"
@@ -22,7 +29,7 @@ parser.add_argument("--qubits", type=int)
 parser.add_argument("--dataset", type=str, default='mnist4x4')
 parser.add_argument("--style", type=str, default='u3cu3')
 args = parser.parse_args()
-print('Pure Linear classifier.')
+print('qnn followed by a linear classifier.')
 print('chosen classes:', args.classes)
 print('chosen layers:', args.layers)
 print('chosen qubits:', args.qubits)
@@ -56,16 +63,50 @@ elif args.style == 'zx_xx':
     qnn_module = qnn_zx_xx
 
 
+# build encoder circuit
+encoder = xyz_encoder(n_dim, n_qubits)
+encoder = encoder.no_grad()     
+# encoder.summary()
+
+# build qnn circuit
+reuploads = args.reuploads
+n_layers = args.layers
+# n_classes = 4
+# n_layers = 96
+qnn_reups = []
+for i in range(reuploads):
+    qnn_reups.append(qnn_module(n_layers, n_qubits, ring=True, prefix=str(i)))
+# qnn.summary()
+
+# build hamiltonians
+hams = hams_for_classification(n_qubits)
+
+# build dru circuit
+circuit = Circuit()
+for reup in qnn_reups:
+    circuit += encoder.as_encoder() + reup.as_ansatz()
+# circuit = qnn_id_xyz_u3cu3(n_layers, n_qubits, n_dim, reuploads)
 
 # build mindspore model
 # pylint: disable=W0104
 import mindspore as ms                                                                         # 导入mindspore库并简写为ms
-
+from mindquantum.framework import MQLayer                                                      # 导入MQLayer
+from mindquantum.simulator import Simulator
 
 ms.set_context(mode=ms.PYNATIVE_MODE, device_target="CPU")
 ms.set_seed(42)                                                                                 # 设置生成随机数的种子
 np.random.seed(42)
+sim = Simulator('mqvector', n_qubits)
 
+# test duplicating ansatz
+# circuit = circuit + circuit + circuit
+
+circuit.summary()                                                    # 打印量子线路的信息
+
+grad_ops = sim.get_expectation_with_grad(hams,
+                                         circuit,
+                                         parallel_worker=256)
+QuantumNet = MQLayer(grad_ops, weight='normal')          # 搭建量子神经网络
 
 # prepare mnist data
 import mindspore
@@ -115,20 +156,29 @@ loss = CrossEntropyLoss()            # 通过SoftmaxCrossEntropyWithLogits定义
 # model = Model(QuantumNet, loss, opti, metrics={'Acc': Accuracy()})             # 建立模型：将MindSpore Quantum构建的量子机器学习层和MindSpore的算子组合，构成一张更大的机器学习网络
 
 class Network(nn.Cell):
-    def __init__(self, classes=10, n_dim=16):
+    def __init__(self, quantumnet, classes=10):
         super().__init__()
+        self.quantumnet = quantumnet
         self.classes = classes
-        self.quantumnet = nn.Dense(n_dim, args.n_qubits, has_bias=True)
-        self.activation1 = nn.LeakyReLU()
-        # self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
-        # self.activation2 = nn.LeakyReLU()
+        self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
+        # self.reshape = ops.Reshape()
+        # self.activation = nn.Sigmoid()
+        self.activation = nn.LeakyReLU()
+        # self.classifier = nn.Softmax()
+        # self.reshape2 = ops.Reshape()
 
     def construct(self, x):
-        x = self.activation1(self.quantumnet(x))
-        # x = self.activation2(self.linear(x))
-        return x
+        # x = self.flatten(x)
+        logits = self.quantumnet(x)
+        # logits = self.reshape(logits, (len(x), 1, self.classes))
+        logits = self.linear(logits)
+        logits = self.activation(logits)
+        # logits = self.classifier(logits)
+        # print(logits.shape)
+        # logits = self.reshape2(logits, (len(x), self.classes))
+        return logits
 
-model = Network(classes=args.classes)
+model = Network(QuantumNet,classes=args.classes)
 
 opti = Adam(model.trainable_params(), learning_rate=lr, weight_decay=weight_decay)  
 

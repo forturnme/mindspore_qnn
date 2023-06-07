@@ -14,7 +14,7 @@ from mindquantum.core.gates import H, X, RZ          # 导入量子门H, X, RZ
 from qnn_circuits import xyz_encoder, qnn_u3_cu3, hams_for_classification, qnn_cnot_zxz, qnn_rxyz_swap, qnn_zz_ry, qnn_zx_xx
 # from qnn_circuits_id import qnn_id_xyz_u3cu3
 
-from download import download
+# from download import download
 
 # url = "https://mindspore-website.obs.cn-north-4.myhuaweicloud.com/" \
 #       "notebook/datasets/MNIST_Data.zip"
