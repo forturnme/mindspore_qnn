@@ -47,9 +47,9 @@ weight_decay = 0.0001
 epochs = 150
 
 if args.dataset == 'mnist4x4':
-    datadir = 'MNIST_csv'
+    datadir = 'data/mnist4x4'
 elif args.dataset == 'fashion4x4':
-    datadir = 'fashionMNIST_csv'
+    datadir = 'data/fashion4x4'
 
 if args.style == 'u3cu3':
     qnn_module = qnn_u3_cu3
@@ -137,10 +137,10 @@ def datapipe(path, batch_size):
     dataset = dataset.batch(batch_size)
     return dataset
 
-train_dataset = datapipe([f'{datadir}/mnist4x4_{args.classes}_train_labels.csv',
-                            f'{datadir}/mnist4x4_{args.classes}_train_images.csv'], batch_size)
-test_dataset = datapipe([f'{datadir}/mnist4x4_{args.classes}_test_labels.csv',
-                            f'{datadir}/mnist4x4_{args.classes}_test_images.csv'], batch_size)
+train_dataset = datapipe([f'{datadir}/{args.dataset}_{args.classes}_train_labels.csv',
+                            f'{datadir}/{args.dataset}_{args.classes}_train_images.csv'], batch_size)
+test_dataset = datapipe([f'{datadir}/{args.dataset}_{args.classes}_test_labels.csv',
+                            f'{datadir}/{args.dataset}_{args.classes}_test_images.csv'], batch_size)
 
 # train the model
 from mindspore.nn import CrossEntropyLoss                         # 导入SoftmaxCrossEntropyWithLogits模块，用于定义损失函数
@@ -233,8 +233,8 @@ def test_loop(model, dataset, loss_fn):
 
 loss_fn = nn.CrossEntropyLoss()
 
-ms.save_checkpoint(model, 'checkpoint_test.ckpt')
-ms.load_checkpoint('checkpoint_test.ckpt', model)
+# ms.save_checkpoint(model, 'checkpoint_test.ckpt')
+# ms.load_checkpoint('checkpoint_test.ckpt', model)
 epochs = epochs
 for t in range(epochs):
     stime = time()

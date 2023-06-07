@@ -38,7 +38,7 @@ print('chosen dataset:', args.dataset)
 print('chosen style:', args.u3cu3)
 
 
-n_dim = 4*4
+n_dim = 10
 n_qubits = args.qubits
 batch_size = 256
 lr = 0.005
@@ -46,10 +46,8 @@ lr = 0.005
 weight_decay = 0.0001
 epochs = 150
 
-if args.dataset == 'mnist4x4':
-    datadir = 'data/mnist4x4'
-elif args.dataset == 'fashion4x4':
-    datadir = 'data/fashion4x4'
+if args.dataset == 'vowel':
+    datadir = 'data/vowel'
 
 if args.style == 'u3cu3':
     qnn_module = qnn_u3_cu3

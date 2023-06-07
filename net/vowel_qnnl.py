@@ -29,7 +29,7 @@ parser.add_argument("--qubits", type=int)
 parser.add_argument("--dataset", type=str, default='mnist4x4')
 parser.add_argument("--style", type=str, default='u3cu3')
 args = parser.parse_args()
-print('naive qnn not followed by a linear classifier.')
+print('qnn followed by a linear classifier.')
 print('chosen classes:', args.classes)
 print('chosen layers:', args.layers)
 print('chosen qubits:', args.qubits)
@@ -38,7 +38,7 @@ print('chosen dataset:', args.dataset)
 print('chosen style:', args.u3cu3)
 
 
-n_dim = 4*4
+n_dim = 10
 n_qubits = args.qubits
 batch_size = 256
 lr = 0.005
@@ -46,10 +46,8 @@ lr = 0.005
 weight_decay = 0.0001
 epochs = 150
 
-if args.dataset == 'mnist4x4':
-    datadir = 'data/mnist4x4'
-elif args.dataset == 'fashion4x4':
-    datadir = 'data/fashion4x4'
+if args.dataset == 'vowel':
+    datadir = 'data/vowel'
 
 if args.style == 'u3cu3':
     qnn_module = qnn_u3_cu3
@@ -160,10 +158,10 @@ class Network(nn.Cell):
         super().__init__()
         self.quantumnet = quantumnet
         self.classes = classes
-        # self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
+        self.linear = nn.Dense(args.n_qubits, classes, has_bias=True)
         # self.reshape = ops.Reshape()
         # self.activation = nn.Sigmoid()
-        # self.activation = nn.LeakyReLU()
+        self.activation = nn.LeakyReLU()
         # self.classifier = nn.Softmax()
         # self.reshape2 = ops.Reshape()
 
@@ -171,8 +169,8 @@ class Network(nn.Cell):
         # x = self.flatten(x)
         logits = self.quantumnet(x)
         # logits = self.reshape(logits, (len(x), 1, self.classes))
-        # logits = self.linear(logits)
-        # logits = self.activation(logits)
+        logits = self.linear(logits)
+        logits = self.activation(logits)
         # logits = self.classifier(logits)
         # print(logits.shape)
         # logits = self.reshape2(logits, (len(x), self.classes))

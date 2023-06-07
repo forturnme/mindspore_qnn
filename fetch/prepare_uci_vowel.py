@@ -43,9 +43,10 @@ def vowel_to_csv(path):
     # transform the data
     # notice we don't need the first 3 columns
     # and the labels are in the last column
+    # what else, the second last column is useless
     data = data.values
     labels = data[:,-1]
-    data = data[:,3:-1]
+    data = data[:,3:-2]
     # normalize the data
     data = (data-0.1307) / 0.3081
     # select first n classes
