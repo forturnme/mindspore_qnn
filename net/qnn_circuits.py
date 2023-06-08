@@ -9,7 +9,7 @@ import numpy as np
 # import mindquantum libraries
 import mindquantum as mq
 
-def qnn_zz_ry(layers, n_qubits, ring = False):
+def qnn_zz_ry(layers, n_qubits, ring = False, prefix='qnn'):
     '''
     return a qnn circuit build over mindquantum
     with no input layer but just the qnn layers
@@ -30,12 +30,12 @@ def qnn_zz_ry(layers, n_qubits, ring = False):
     for i in range(layers):
         # add the zz layer
         for j in range(n_qubits-1):
-            circuit += mq.ZZ('zz_{:06d}_{:06d}'.format(j, j+1)).on([j, j+1])
+            circuit += mq.ZZ(prefix+'zz_{:06d}_{:06d}'.format(j, j+1)).on([j, j+1])
         if ring:
-            circuit += mq.ZZ('zz_{:06d}_{:06d}'.format(n_qubits-1, 0)).on([n_qubits-1, 0])
+            circuit += mq.ZZ(prefix+'zz_{:06d}_{:06d}'.format(n_qubits-1, 0)).on([n_qubits-1, 0])
         # add the ry layer
         for j in range(n_qubits):
-            circuit += mq.RY('ry_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RY(prefix+'ry_{:06d}_{:06d}'.format(i, j)).on(j)
     # return the circuit
     return circuit
 
@@ -77,7 +77,7 @@ def qnn_u3_cu3(layers, n_qubits, ring = True, prefix='qnn'):
     return circuit
 
 
-def qnn_zx_xx(layers, n_qubits, ring = False):
+def qnn_zx_xx(layers, n_qubits, ring = False, prefix='qnn'):
     '''
     return a qnn circuit build over mindquantum
     with no input layer but just the qnn layers
@@ -99,20 +99,20 @@ def qnn_zx_xx(layers, n_qubits, ring = False):
     for i in range(layers):
         # add the z layer
         for j in range(n_qubits):
-            circuit += mq.RZ('z_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RZ(prefix+'z_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the x layer
         for j in range(n_qubits):
-            circuit += mq.RX('x_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RX(prefix+'x_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the xx layer
         for j in range(n_qubits-1):
-            circuit += mq.XX('xx_{:06d}_{:06d}'.format(i, j)).on((j, j+1))
+            circuit += mq.XX(prefix+'xx_{:06d}_{:06d}'.format(i, j)).on((j, j+1))
         if ring:
-            circuit += mq.XX('xx_{:06d}_{:06d}'.format(i, n_qubits-1)).on((n_qubits-1, 0))
+            circuit += mq.XX(prefix+'xx_{:06d}_{:06d}'.format(i, n_qubits-1)).on((n_qubits-1, 0))
     # return the circuit
     return circuit
 
 
-def qnn_cnot_zxz(layers, n_qubits, ring = False):
+def qnn_cnot_zxz(layers, n_qubits, ring = False, prefix='qnn'):
     '''
     return a qnn circuit build over mindquantum
     with no input layer but just the qnn layers
@@ -138,18 +138,18 @@ def qnn_cnot_zxz(layers, n_qubits, ring = False):
             circuit += mq.CNOT.on(n_qubits-1, 0)
         # add the z layer
         for j in range(n_qubits):
-            circuit += mq.RZ('z1_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RZ(prefix+'z1_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the x layer
         for j in range(n_qubits):
-            circuit += mq.RX('x_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RX(prefix+'x_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the z layer
         for j in range(n_qubits):
-            circuit += mq.RZ('z2_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RZ(prefix+'z2_{:06d}_{:06d}'.format(i, j)).on(j)
     # return the circuit
     return circuit
 
 
-def qnn_rxyz_swap(layers, n_qubits):
+def qnn_rxyz_swap(layers, n_qubits, prefix='qnn'):
     '''
     return a qnn circuit build over mindquantum
     with no input layer but just the qnn layers
@@ -174,13 +174,13 @@ def qnn_rxyz_swap(layers, n_qubits):
     for i in range(layers):
         # add the rz layer
         for j in range(n_qubits):
-            circuit += mq.RZ('z_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RZ(prefix+'z_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the ry layer
         for j in range(n_qubits):
-            circuit += mq.RY('y_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RY(prefix+'y_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the rx layer
         for j in range(n_qubits):
-            circuit += mq.RX('x_{:06d}_{:06d}'.format(i, j)).on(j)
+            circuit += mq.RX(prefix+'x_{:06d}_{:06d}'.format(i, j)).on(j)
         # add the swap layer
         for j in range(n_qubits//2):
             circuit += mq.Z.on(2*j, 2*j+1)
