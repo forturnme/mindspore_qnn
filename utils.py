@@ -232,7 +232,7 @@ def plot_accruacy_epoch(logs, style=None, dataset=None, qubits=None, reuploads=N
                 'accruacies': []
             }
         plot_data[series_name]['accruacies'] = log['test_accruacies']
-        plot_data[series_name]['epochs'] = list(range(1, len(log['test_accruacies']) + 1, 5))
+        plot_data[series_name]['epochs'] = list(range(1, (len(log['test_accruacies']))*5, 5))
     # plot
     plt.figure(figsize=figsize)
     plt.title(title)
@@ -436,8 +436,7 @@ def plot_accruacy_netconf_trebled(logs, style=None, dataset=None, qubits=None,
                      marker=markers[i%len(markers)], label=netname, alpha=1)
         else:
             plt.plot(plot_data[netname]['n_classes'], plot_data[netname]['accruacies'],
-                     marker=markers[i%len(markers)], label=netname, alpha=0.3)
+                     marker=markers[i%len(markers)], label=netname, alpha=0.15)
     plt.legend()
     plt.savefig(save_path + filename + '.pdf')
     plt.show()
-
